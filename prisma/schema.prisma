@@ -1,0 +1,87 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Driver {
+  id                  Int             @id @default(autoincrement())
+  name                String          @db.VarChar
+  image               String          @db.VarChar
+  teamId              Int
+  team                Team            @relation(fields: [teamId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  results             Result[]
+}
+
+model Team {
+  id                  Int             @id @default(autoincrement())
+  name                String          @db.VarChar
+  image               String          @db.VarChar
+  drivers             Driver[]
+}
+
+model Track {
+  id                  Int             @id @default(autoincrement())
+  name                String          @db.VarChar
+  firstGp             Int             
+  laps                Int
+  length              Int
+  raceDistance        Int
+  lapRecord           String          @db.VarChar
+  grandPrixes         GrandPrix[]
+}
+
+model Calendar {
+  id                  Int             @id @default(autoincrement())
+  date                DateTime        @db.Date @default(now())
+  trackId             Int
+}
+
+model GrandPrix {
+  id                  Int             @id @default(autoincrement())
+  date                DateTime
+  trackId             Int?
+  track               Track?          @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  results             Result[]
+}
+
+model Result {
+  id                  Int             @id @default(autoincrement())
+  pos                 Int
+  tyre                Tyre?
+  gap                 Int
+  bestLap             Int
+  pitstops            Int
+  penGame             Int
+  penStewards         Int
+  points              Int
+  gridPos             Int
+  status              Status
+  session             Session
+  grandPrixId         Int
+  grandPrix           GrandPrix       @relation(fields: [grandPrixId], references: [id], onDelete: Cascade)
+  driverId            Int?
+  driver              Driver?         @relation(fields: [driverId], references: [id], onDelete: Cascade)
+}
+
+enum Tyre {
+  SOFT
+  MEDIUM
+  HARD
+}
+
+enum Status {
+  FINISHED
+}
+
+enum Session {
+  QUALIFYING
+  SPRINT
+  RACE
+}
